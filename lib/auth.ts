@@ -77,6 +77,7 @@ export async function signIn({ email, password }: { email: string, password: str
         if (error.code === "auth/invalid-email") throw new Error("Email is invalid");
         if (error.code === "auth/user-not-found") throw new Error("User not found");
         if (error.code === "auth/wrong-password") throw new Error("Password is incorrect");
+        if (error.code === "auth/invalid-credential") throw new Error("Invalid credentials");
         throw new Error(error.message);
     }
 }
