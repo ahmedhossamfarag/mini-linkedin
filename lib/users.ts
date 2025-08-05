@@ -16,6 +16,7 @@ export async function getUserData(uid: string) {
     const usersCollection = collection(getFirestore(firebaseApp), "users");
     const q = query(usersCollection, where("uid", "==", uid));
     const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) return null;
     return querySnapshot.docs[0].data();
 }
 
@@ -23,7 +24,7 @@ export async function getCurrentUserData(): Promise<User | null> {
     const currentUser = await getCurrentUser();
     if (!currentUser) return null;
     const currentUserData = await getUserData(currentUser.uid);
-    return { uid: currentUser.uid, email: currentUserData.email!, name: currentUserData.name, bio: currentUserData.bio };
+    return { uid: currentUser.uid, email: currentUserData?.email, name: currentUserData?.name, bio: currentUserData?.bio };
 }
 
 export async function getCurrentUser() {
