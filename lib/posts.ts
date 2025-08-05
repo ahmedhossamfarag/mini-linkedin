@@ -61,10 +61,11 @@ export async function getCurrentUserPosts(): Promise<Post[]> {
 
 export async function createPost({ title, content }: { title: string; content: string }) {
     const validatedFields = postSchema.safeParse({ title, content });
-    if (!validatedFields.success) throw new Error(validatedFields.error.message);
+    if (!validatedFields.success) return { success: false, error: validatedFields.error.message };
     const user = await getCurrentUserData();
     const post = { title, content, createdAt: new Date(), userId: user?.uid, username: user?.name };
     const db = getFirestore(firebaseApp);
     const postsCollection = collection(db, "posts");
     await addDoc(postsCollection, post);
+    return { success: true, error: "" };
 }

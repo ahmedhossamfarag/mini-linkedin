@@ -51,34 +51,36 @@ async function deleteSession() {
 }
 
 export async function signUp({ name, email, bio, password, confirmPassword }: { name: string, email: string, bio: string, password: string, confirmPassword: string }) {
-    if (password !== confirmPassword) throw new Error("Passwords do not match");
+    if (password !== confirmPassword) return { success: false, error: "Passwords do not match" };
     const validatedFields = signUpSchema.safeParse({ email, name, bio, password, confirmPassword });
-    if (!validatedFields.success) throw new Error(validatedFields.error.message);
+    if (!validatedFields.success) return { success: false, error: validatedFields.error.message };
     try {
         const userCredential = await createUserWithEmailAndPassword(getAuth(firebaseApp), email, password);
         const usersCollection = collection(getFirestore(firebaseApp), "users");
         await addDoc(usersCollection, { uid: userCredential.user.uid, name, email, bio, password });
         await createSession();
+        return { success: true, error: "" };
     } catch (error: any) {
-        if (error.code === "auth/email-already-in-use") throw new Error("Email already in use");
-        if (error.code === "auth/invalid-email") throw new Error("Email is invalid");
-        if (error.code === "auth/weak-password") throw new Error("Password must be at least 6 characters");
-        throw new Error(error.message);
+        if (error.code === "auth/email-already-in-use") return { success: false, error: "Email already in use" };
+        if (error.code === "auth/invalid-email") return { success: false, error: "Email is invalid" };
+        if (error.code === "auth/weak-password") return { success: false, error: "Password is weak" };
+        return { success: false, error: error.message };
     }
 }
 
 export async function signIn({ email, password }: { email: string, password: string }) {
     const validatedFields = signInSchema.safeParse({ email, password });
-    if (!validatedFields.success) throw new Error(validatedFields.error.message);
+    if (!validatedFields.success) return { success: false, error: validatedFields.error.message };
     try {
         const user = await signInWithEmailAndPassword(getAuth(firebaseApp), email, password);
         await createSession();
+        return { success: true, error: "" };
     } catch (error: any) {
-        if (error.code === "auth/invalid-email") throw new Error("Email is invalid");
-        if (error.code === "auth/user-not-found") throw new Error("User not found");
-        if (error.code === "auth/wrong-password") throw new Error("Password is incorrect");
-        if (error.code === "auth/invalid-credential") throw new Error("Invalid credentials");
-        throw new Error(error.message);
+        if (error.code === "auth/invalid-email") return { success: false, error: "Email is invalid" };
+        if (error.code === "auth/user-not-found") return { success: false, error: "User not found" };
+        if (error.code === "auth/wrong-password") return { success: false, error: "Password is incorrect" };
+        if (error.code === "auth/invalid-credential") return { success: false, error: "Invalid credential" };
+        return { success: false, error: error.message };
     }
 }
 

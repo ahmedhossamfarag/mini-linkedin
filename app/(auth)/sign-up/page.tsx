@@ -10,16 +10,13 @@ export default function SignUpPage() {
         const bio = formData.get("bio") as string;
         const password = formData.get("password") as string;
         const confirmPassword = formData.get("confirmPassword") as string;
-        try {
-            await signUp({ name, email, bio, password, confirmPassword });
-            window.location.href = "/profile";
-        } catch (error: any) {
-            return {
-                name,
-                email,
-                bio,
-                error: error.message
-            }
+        const { success, error } = await signUp({ name, email, bio, password, confirmPassword });
+        if (success) window.location.href = "/profile";
+        else return {
+            name,
+            email,
+            bio,
+            error: error
         }
     }
     const [state, formAction, pending] = useActionState(signUpUser, { name: "", email: "", bio: "", error: null });

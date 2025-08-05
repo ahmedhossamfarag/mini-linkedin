@@ -7,14 +7,11 @@ export default function SignInPage() {
     async function signInUser(prevState: any, formData: FormData) {
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;
-        try {
-            await signIn({ email, password });
-            window.location.href = "/profile";
-        } catch (error: any) {
-            return {
-                email,
-                error: error.message
-            }
+        const { success, error } = await signIn({ email, password });
+        if (success) window.location.href = "/profile";
+        else return {
+            email,
+            error: error
         }
     }
     const [state, formAction, pending] = useActionState(signInUser, { email: "", error: null });
