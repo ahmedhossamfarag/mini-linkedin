@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps } from "firebase/app";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { getStorage, connectStorageEmulator } from "firebase/storage";
@@ -13,8 +13,8 @@ const firebaseConfig = {
     measurementId: "G-8MT2691EMW"
 };
 
-const app = initializeApp(firebaseConfig);
-if (location.hostname === "localhost") {
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+if (process.env.NODE_ENV === "development") {
     const auth = getAuth(app);
     connectAuthEmulator(auth, "http://localhost:9099");
 
